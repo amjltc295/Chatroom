@@ -1,4 +1,27 @@
 /* layout */
+.nav-bar {
+    border-bottom: 1px solid black;
+    background-color: #4267b2;
+    margin: 0;
+    display: flex;
+    height: 40px;
+    line-height: 40px;
+}
+
+
+.nav-padding {
+    width: 960px;
+}
+.nav-title {
+    color: #ffffff;
+    width: 200px;
+    margin: 0;
+}
+
+.nav-users {
+    width: 200px;
+}
+
 .chat-app {
 	height: 100vh;
 }
@@ -35,7 +58,7 @@
 
 .thread-item {
 	position: relative;
-	heidht: 70px;
+	height: 70px;
 }
 
 .thread-item_left {
@@ -133,6 +156,10 @@
 .new-message {
 	width: 100%;
 	height: 100%;
+}
+
+/* Container */
+.container {
 }
 
 /* clearfix
