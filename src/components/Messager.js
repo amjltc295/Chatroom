@@ -16,13 +16,13 @@ export default class Messager extends Component {
         <a href="#">
           <div className="clearfix">
             <div className="thread-item_left">
-              <img className="img-circle" src={src} alt="" className="img" />
+              <img className="img-circle" src={src} alt="" className="profile_img" />
             </div>
             <div className="thread-item_right">
               <div className="thread-from">
                 {name}
               </div>
-              <div>
+              <div className="thread-content-box">
                 <span className="thread-content">{content}</span>
               </div>
               <span className="thread-time">{time}</span>

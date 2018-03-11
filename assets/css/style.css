@@ -29,6 +29,7 @@
 .chat-app_left {
 	float: left;
 	width: calc(35% - 1px);
+    min-width: 300px;
 	height: inherit;
 	border-right: 1px solid grey;
 }
@@ -58,7 +59,7 @@
 
 .thread-item {
 	position: relative;
-	height: 70px;
+	height: 92px;
 }
 
 .thread-item_left {
@@ -70,7 +71,7 @@
 .thread-item_right {
 	float: left;
 	width: calc(100% - 90px);
-	padding: 20px 10px;
+	padding: 15px 10px;
 	border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
@@ -80,9 +81,20 @@
 	color: black;
 }
 
+.thread-content-box {
+    height: 22px;
+    max-width: calc(70% - 10px);
+    width: calc(70% - 10px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
 .thread-content {
+    display: inline-block;
 	color: rgba(0, 0, 0, .40);
 	font-size: 14px;
+    height: 24px;
+    margin: 5px 0 0 0;
 }
 
 .thread-time {
@@ -91,6 +103,11 @@
 	top: 23px;
 	right: 13px;
 	font-size: 14px;
+}
+
+.profile_img {
+    height: 50px;
+    width: 50px;
 }
 
 .img-circle {
