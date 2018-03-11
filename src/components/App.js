@@ -9,6 +9,29 @@ const initialState = {
   threads: [
     {
       target: {
+        name: 'Public Room',
+        profilePic: 'https://scontent.ftpe7-4.fna.fbcdn.net/v/t1.0-9/22688095_1679926095374089_5126135710824419760_n.jpg?_nc_fx=ftpe7-2&_nc_eui2=v1%3AAeEUHpybF0Art51sdIiUHGVIGYu_8F7gpRVHTW-7L6SHCYnqdG1ClzVyzjW9NphQxPmR3P9DfGGIz2L8JIx7EsMWh-Vnfrun8k1m8tWY43kXig&oh=c85d05f8bf4016b267ab03d3a09b4a3e&oe=5B021CE9'
+      },
+        messages: [
+          { fromMe: false,
+            text: 'Hello, I am Ya-Liang Chang.',
+            time: '00:00am' },
+          { fromMe: false,
+            text: 'Welcome to NTUEE ESLab HW1 Demo!! TEttttttttttttttttttttttttttttttttttttttttttttaaaaaaaaaaaaaaaat',
+            time: '00:00am' }
+        ]
+    },
+    {
+      target: {
+        name: 'Marshall',
+        profilePic: 'http://lorempixel.com/50/50/people/7'
+      },
+      messages: [
+        { fromMe: false, text: '好呦～', time: '12:27am' }
+      ]
+    },
+    {
+      target: {
         name: 'Elsa',
         profilePic: 'http://lorempixel.com/50/50/people/1'
       },
@@ -28,29 +51,6 @@ const initialState = {
       messages: [
         { fromMe: false, text: '對啊！', time: '12:27am' }
       ]
-    },
-    {
-      target: {
-        name: 'Marshall',
-        profilePic: 'http://lorempixel.com/50/50/people/7'
-      },
-      messages: [
-        { fromMe: false, text: '好呦～', time: '12:27am' }
-      ]
-    },
-    {
-      target: {
-        name: 'Public Room',
-        profilePic: 'https://scontent.ftpe7-4.fna.fbcdn.net/v/t1.0-9/22688095_1679926095374089_5126135710824419760_n.jpg?_nc_fx=ftpe7-2&_nc_eui2=v1%3AAeEUHpybF0Art51sdIiUHGVIGYu_8F7gpRVHTW-7L6SHCYnqdG1ClzVyzjW9NphQxPmR3P9DfGGIz2L8JIx7EsMWh-Vnfrun8k1m8tWY43kXig&oh=c85d05f8bf4016b267ab03d3a09b4a3e&oe=5B021CE9'
-      },
-        messages: [
-          { fromMe: false,
-            text: 'Hello, I am Ya-Liang Chang.',
-            time: '00:00am' },
-          { fromMe: false,
-            text: 'Welcome to NTUEE ESLab HW1 Demo!! TEttttttttttttttttttttttttttttttttttttttttttttaaaaaaaaaaaaaaaat',
-            time: '00:00am' }
-        ]
     }
   ],
   currentIndex: 0,
