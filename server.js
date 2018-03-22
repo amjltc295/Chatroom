@@ -7,12 +7,10 @@ var app = express()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var complier = webpack(config)
-var onlineUsers = 0
-var appearedUserNum = 0
 
 var initialState = {
   users: {},
-  onlineUsers: 0
+  onlineUserNum: 0
 }
 app.use(require('webpack-dev-middleware')(complier, {
   noInfo: true,
@@ -36,19 +34,23 @@ io.on('connection', function (socket) {
 
   socket.on('user:init', function (data) {
     initialState.users[socket.id] = socket
-    initialState.onlineUsers = Object.keys(initialState.onlineUsers).length
-    socket.emit('user:join', socket.id)
+    initialState.onlineUserNum = Object.keys(initialState.users).length
+    socket.emit('user:join',
+                          {userID: socket.id,
+                           onlineUserNum: initialState.onlineUserNum})
+    socket.broadcast.emit('user:join',
+                          {userID: socket.id,
+                           onlineUserNum: initialState.onlineUserNum})
     console.log(socket.id + ' connected')
     console.log(initialState)
   })
   socket.on('onlineUsers', function (data) {
-    socket.emit('onlineUsers', data)
+    socket.broadcast.emit('onlineUsers', data)
     console.log(data)
   })
 
   socket.on('disconnect', function () {
     socket.emit('user:left', socket.id)
-    initialState.onlineUsers--
     delete initialState.users[socket.id]
     console.log(socket.id + ' disconnected')
   })

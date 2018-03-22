@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 
 export default class Navbar extends Component {
   static propTypes = {
-    onlineUsers: PropTypes.number.isRequired,
+    onlineUserNum: PropTypes.number.isRequired,
     handleUserNumChange: PropTypes.func.isRequired
   }
 
@@ -10,9 +10,7 @@ export default class Navbar extends Component {
   }
 
   render () {
-    // There is a double conunting issus,
-    // so the onlineUsers is devided by two
-    const {onlineUsers, handleUserNumChange} = this.props;
+    const {onlineUserNum, handleUserNumChange} = this.props;
     return (
       <nav className='nav-bar'>
         <div className='nav-padding'>
@@ -21,7 +19,7 @@ export default class Navbar extends Component {
           </div>
         </div>
         <div className='nav-users' onClick={handleUserNumChange}>
-          <span > Online users: {onlineUsers / 2} </span>
+          <span > Online users: {onlineUserNum} </span>
           <div id='num'> </div>
         </div>
       </nav>
