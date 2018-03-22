@@ -8,7 +8,12 @@ var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var complier = webpack(config)
 var onlineUsers = 0
+var appearedUserNum = 0
 
+var initialState = {
+  users: {},
+  onlineUsers: 0
+}
 app.use(require('webpack-dev-middleware')(complier, {
   noInfo: true,
   publicPath: config.output.publicPath,
@@ -28,18 +33,25 @@ app.get('/', function (req, res) {
 })
 
 io.on('connection', function (socket) {
-  onlineUsers++
-  io.sockets.emit('onlineUsers', { onlineUsers: onlineUsers })
+
+  socket.on('user:init', function (data) {
+    initialState.users[socket.id] = socket
+    initialState.onlineUsers = Object.keys(initialState.onlineUsers).length
+    socket.emit('user:join', socket.id)
+    console.log(socket.id + ' connected')
+    console.log(initialState)
+  })
+  socket.on('onlineUsers', function (data) {
+    socket.emit('onlineUsers', data)
+    console.log(data)
+  })
 
   socket.on('disconnect', function () {
-    onlineUsers--
-    io.sockets.emit('onlineUsers', { onlineUsers: onlineUsers })
-    console.log('A user disconnected')
-    console.log(io.engine.clientsCount / 2)
+    socket.emit('user:left', socket.id)
+    initialState.onlineUsers--
+    delete initialState.users[socket.id]
+    console.log(socket.id + ' disconnected')
   })
-  console.log('A user connected')
-  console.log(io.engine.clientsCount / 2)
-  console.log(socket.eventNames())
 })
 
 http.listen(3000, 'localhost', (err) => {

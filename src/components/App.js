@@ -3,6 +3,7 @@ import MessageList from './MessageList'
 import Messager from './Messager'
 import UserInput from './UserInput'
 import Navbar from './Navbar'
+var socket = io.connect()
 
 const initialState = {
   newMessage: '',
@@ -53,27 +54,22 @@ const initialState = {
       ]
     }
   ],
+  userID: socket.id,
   currentIndex: 0,
-  onlineUsers: 0
+  onlineUsers: {}
 }
 
 export default class App extends Component {
   constructor (props) {
     super(props)
     this.state = initialState
+		this._publicMessageRecieve = this._publicMessageRecieve.bind(this)
+		this._userJoined = this._userJoined.bind(this)
+    this._initialize = this._initialize.bind(this)
   }
-
-  componentDidMount () {
-    let socket = io.connect()
-    socket.on('onlineUsers', (data) => {
-      this.setState({onlineUsers: data.onlineUsers})
-    })
-  }
-
 
   handleUserNumChange () {
     const onlineUsers = this.state.onlineUsers
-    this.setState({onlineUsers: onlineUsers + 1})
   }
 
   handleMessageChange (event) {
@@ -86,7 +82,7 @@ export default class App extends Component {
 
   handleKeyDown (event) {
     const message = event.target.value
-    const time = new Date().toDateString()
+    const time = new Date().toTimeString()
     const addMessage = {fromMe: true, text: message, time: time}
 
     if (event.keyCode === 13 && message !== '') {
@@ -97,8 +93,73 @@ export default class App extends Component {
         newMessage: '',
         threads: threads
       })
-    }
+      const userID = this.state.userID
+      socket.emit('onlineUsers', {userID: userID,
+                                  message: addMessage})
+   }
   }
+
+  componentDidMount () {
+    this._initialize()
+    socket.on('onlineUsers', this._publicMessageRecieve)
+		socket.on('send:message', this._publicMessageRecieve);
+		socket.on('user:join', this._userJoined);
+		socket.on('user:left', this._userLeft);
+		socket.on('change:name', this._userChangedName);
+	}
+
+	_initialize() {
+    this.setState({userID: socket.id})
+    socket.emit('user:init', socket.id)
+	}
+
+	_publicMessageRecieve(data) {
+    if (data.message !== undefined) {
+      const {threads, userID, currentIndex, onlineUsers} = this.state
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userID: data.userID,
+                          text: data.message.text,
+                          time: data.message.time}
+      threads[0].messages.push(addMessage)
+      this.setState({threads: threads})
+    }
+	}
+
+	_userJoined(data) {
+    if (this.state.userID == null) {
+      this.setState({userID: data})
+    }
+    const {threads, userID, currentIndex, onlineUsers} = this.state
+    onlineUsers[socket.id] = socket
+    this.setState({onlineUsers: onlineUsers})
+	}
+
+	_userLeft(data) {
+    delete initialState.users[socket.id]
+    if (data !== undefined) {
+      const {threads, userID, currentIndex, onlineUsers} = this.state
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userID: data,
+                          text: data + " left",
+                          time: time}
+      threads[0].messages.push(addMessage)
+      this.setState({threads: threads})
+    }
+	}
+
+	_userChangedName(data) {
+		var {oldName, newName} = data;
+		var {users, messages} = this.state;
+		var index = users.indexOf(oldName);
+		users.splice(index, 1, newName);
+		messages.push({
+			user: 'APPLICATION BOT',
+			text : 'Change Name : ' + oldName + ' ==> '+ newName
+		});
+		this.setState({users, messages});
+	}
 
   render () {
     const { threads, currentIndex, onlineUsers } = this.state
@@ -111,7 +172,7 @@ export default class App extends Component {
 
         <div className='chat-app_left'>
           <div className='heading'>
-            <h3 className='messenger-title'>Messager</h3>
+            <h3 className='messenger-title'>Messagers</h3>
           </div>
           <div className='thread-list'>
             {threads.map((thread, id) => {
