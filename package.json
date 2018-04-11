@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "reactjs - Simple Chat Room",
   "scripts": {
+    "dev": "concurrently \"nodemon -x 'npm start'\" \"npm run dev-server\"",
     "start": "node server.js",
     "build": "NODE_ENV=production && webpack --config webpack.config.production.js --progress --profile --colors",
     "winBuild": "SET BABEL_ENV=production && webpack --config webpack.config.production.js --progress --profile --colors",
@@ -36,5 +37,6 @@
     "webpack": "^1.12.2",
     "webpack-dev-middleware": "^1.2.0",
     "webpack-hot-middleware": "^2.2.0"
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
