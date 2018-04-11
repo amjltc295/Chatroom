@@ -12,10 +12,19 @@ export default class MessageItem extends Component {
     const { fromMe, userID, text} = this.props;
     return (
       <div className={`message-item ${fromMe ? 'message-from-me' : 'message-from-other'}`}>
-        <div className="message-name">
-          {userID}
+        {!fromMe &&
+        <div className="message-icon">
+          icon
         </div>
-        <span>{text}</span>
+        }
+        <div className="message-right">
+          {!fromMe &&
+          <div className="message-name">
+            {userID}
+          </div>
+          }
+          <span>{text}</span>
+        </div>
       </div>
     );
   }

@@ -147,14 +147,23 @@ body {
 	margin: 5px 0 0 0;
 }
 
+.message-right {
+
+}
+
 .message-icon {
-    height: 20px;
-    width: 20px;
+    height: 40px;
+    width: 40px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    align-self: flex-end;
+    margin: 0px 5px 5px 0px;
 }
 
 .message-name {
 	color: rgba(0, 0, 0, .40);
 	font-size: 14px;
+    height: 35px;
 	text-align: left;
     margin: 5px 0 0 8px;
 }
@@ -168,6 +177,8 @@ body {
 }
 
 .message-from-other {
+    display: flex;
+    flex-flow: row nowrap;
 	padding-left: 25px;
 	text-align: left;
     margin: 0 0 0 0;
