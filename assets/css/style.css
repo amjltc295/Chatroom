@@ -1,43 +1,53 @@
 /* layout */
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
 .nav-bar {
     border-bottom: 1px solid black;
     background-color: #4267b2;
     margin: 0;
     display: flex;
-    height: 40px;
+    height: 6%;
     line-height: 40px;
 }
 
 
 .nav-padding {
-    width: 960px;
+    width: 100%;
+    height: inherit;
 }
 .nav-title {
     color: #ffffff;
-    width: 200px;
+    width: 20%;
+    height: inherit;
     margin: 0;
 }
 
 .nav-users {
-    width: 200px;
+    width: 20%;
+    text-align: right;
+    padding-right: 15px;
 }
 
 .chat-app {
 	height: 100vh;
+    width: 100%;
+    display: inline-block;
 }
 
 .chat-app_left {
 	float: left;
 	width: calc(35% - 1px);
     min-width: 300px;
-	height: inherit;
+	height: calc(92% - 4px);
 	border-right: 1px solid grey;
 }
 
 .chat-app_right {
 	float: left;
 	width: 65%;
-	height: inherit;
+	height: calc(92% - 4px);
 }
 
 .heading {
@@ -70,7 +80,7 @@
 
 .thread-item_right {
 	float: left;
-	width: calc(100% - 90px);
+	width: calc(100% - 100px);
 	padding: 15px 10px;
 	border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
@@ -123,40 +133,73 @@
 
 .message-list {
 	padding-top: 10px;
-	height: calc(100% - 118px);
+	height: calc(80% + 3px);
 	overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
 }
 
 .message-item {
 	line-height: 2em;
-	margin: 10px 0;
+	margin: 5px 0 0 0;
+}
+
+.message-right {
+
+}
+
+.message-icon {
+    height: 40px;
+    width: 40px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    align-self: flex-end;
+    margin: 0px 5px 5px 0px;
+}
+
+.message-name {
+	color: rgba(0, 0, 0, .40);
+	font-size: 14px;
+    height: 35px;
+	text-align: left;
+    margin: 5px 0 0 8px;
 }
 
 .footer {
 	border-top: 1px solid rgba(0, 0, 0, .10);
 	height: 50px;
+	display: inline-block;
+    width: 100%;
+
 }
 
 .message-from-other {
+    display: flex;
+    flex-flow: row nowrap;
 	padding-left: 25px;
 	text-align: left;
+    margin: 0 0 0 0;
 }
 
 .message-from-me {
-	padding-right: 25px;
+	padding-right: 20px;
 	text-align: right;
 }
 
 .message-from-other span {
 	display: inline-block;
-	border-top-left-radius: 1.3em;
-	border-top-right-radius: 1.3em;
-	border-bottom-left-radius: 1.3em;
-	border-bottom-right-radius: 1.3em;
+	border-top-left-radius: 1em;
+	border-top-right-radius: 1em;
+	border-bottom-left-radius: 1em;
+	border-bottom-right-radius: 1em;
 	border: 1px solid rgba(0, 0, 0, .10);
 	padding: 0 15px;
 	color: black;
 	background-color: rgba(255, 255, 255, .10);
+    font-size: 18px;
 }
 
 .message-from-me span {

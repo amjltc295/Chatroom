@@ -15,9 +15,11 @@ const initialState = {
       },
         messages: [
           { fromMe: false,
+            userID: 'Allen',
             text: 'Hello, I am Ya-Liang Chang.',
             time: '00:00am' },
           { fromMe: false,
+            userID: 'Allen',
             text: 'Welcome to NTUEE ESLab HW1 Demo!! TEttttttttttttttttttttttttttttttttttttttttttttaaaaaaaaaaaaaaaat',
             time: '00:00am' }
         ]
