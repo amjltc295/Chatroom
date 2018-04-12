@@ -2,6 +2,7 @@ var path = require('path')
 var express = require('express')
 var webpack = require('webpack')
 var config = require('./webpack.config')
+const translate = require('google-translate-api');
 
 var app = express()
 const port = process.env.PORT || 5000;
@@ -36,14 +37,27 @@ io.on('connection', function (socket) {
   socket.on('user:init', function (data) {
     initialState.users[socket.id] = socket
     initialState.onlineUserNum = Object.keys(initialState.users).length
-    socket.emit('user:join',
-                          {userID: socket.id,
-                           onlineUserNum: initialState.onlineUserNum})
-    socket.broadcast.emit('user:join',
-                          {userID: socket.id,
-                           onlineUserNum: initialState.onlineUserNum})
+    io.emit('user:join',
+            {userID: socket.id,
+             onlineUserNum: initialState.onlineUserNum})
     console.log(socket.id + ' connected')
+    const message = {fromMe: false,
+                     userName: 'Public',
+                     text: socket.id + ' joined this room',
+                     time: new Date().toTimeString()}
+    io.emit('onlineUsers', {message: message})
     console.log(initialState)
+  })
+  socket.on('google', function (data) {
+		translate(data.message.text, {to: 'en'}).then(res => {
+      const translated_message = {fromMe: false,
+                                  userName: 'Miss Google',
+                                  text: res.text,
+                                  time: data.message.time}
+      socket.emit('google', {message: translated_message})
+    }).catch(err => {
+      socket.emit('google', err)
+    });
   })
   socket.on('onlineUsers', function (data) {
     socket.broadcast.emit('onlineUsers', data)

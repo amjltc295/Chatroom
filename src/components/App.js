@@ -51,6 +51,7 @@ export default class App extends Component {
     super(props)
     this.state = initialState
 		this._publicMessageRecieve = this._publicMessageRecieve.bind(this)
+		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
     this._initialize = this._initialize.bind(this)
   }
@@ -80,18 +81,30 @@ export default class App extends Component {
         newMessage: '',
         threads: threads
       })
-      socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
-                                  message: addMessage})
+      if (currentIndex == 0) {
+        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
+                                    message: addMessage})
+      }
+      else if (currentIndex == 1) {
+        socket.emit('google',
+                    {userName: (!userName ? userID : userName),
+                     message: addMessage})
+      }
+      else {
+        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
+                                    message: addMessage})
+      }
    }
   }
 
   componentDidMount () {
     this._initialize()
     socket.on('onlineUsers', this._publicMessageRecieve)
-		socket.on('send:message', this._publicMessageRecieve);
+    socket.on('google', this._googleMessageRecieve)
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
+    this.scrollToBottom();
 	}
 
 	_initialize() {
@@ -104,11 +117,25 @@ export default class App extends Component {
       const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
-                          userName: data.userName,
+                          userName: data.message.userName,
                           text: data.message.text,
                           time: data.message.time}
       threads[0].messages.push(addMessage)
       this.setState({threads: threads})
+      this.scrollToBottom();
+    }
+	}
+	_googleMessageRecieve(data) {
+    if (data.message !== undefined) {
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userName: data.message.userName,
+                          text: data.message.text,
+                          time: data.message.time}
+      threads[1].messages.push(addMessage)
+      this.setState({threads: threads})
+      this.scrollToBottom();
     }
 	}
 
@@ -148,6 +175,9 @@ export default class App extends Component {
 		this.setState({users, messages});
 	}
 
+  scrollToBottom() {
+    this.el.scrollIntoView({ behavior: 'auto' });
+  }
   render () {
     const {threads, userID, userName, currentIndex,
            onlineUsers, onlineUserNum} = this.state
@@ -187,6 +217,7 @@ export default class App extends Component {
           </div>
           <div className='message-list'>
             <MessageList threads={threads} index={currentIndex} />
+            <div ref={el => { this.el = el; }} />
           </div>
           <div className='footer'>
             <UserInput newMessage={this.state.newMessage}
