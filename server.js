@@ -4,6 +4,7 @@ var webpack = require('webpack')
 var config = require('./webpack.config')
 
 var app = express()
+const port = process.env.PORT || 5000;
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var complier = webpack(config)
@@ -56,11 +57,11 @@ io.on('connection', function (socket) {
   })
 })
 
-http.listen(3000, 'localhost', (err) => {
+http.listen(port, (err) => {
   if (err) {
     console.log(err)
     return
   }
 
-  console.log('Listening at http://localhost:3000')
+  console.log('Listening at ' + port)
 })
