@@ -15,7 +15,7 @@ export default class MessageList extends Component {
         {messages.map((message, id) => {
           return (
             <MessageItem key={id}
-                         userID={message.userID}
+                         userName={message.userName}
                          fromMe={message.fromMe}
                          text={message.text} />
           );

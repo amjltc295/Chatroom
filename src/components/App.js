@@ -15,11 +15,11 @@ const initialState = {
       },
         messages: [
           { fromMe: false,
-            userID: 'Allen',
+            userName: 'Allen',
             text: 'Hello, I am Ya-Liang Chang.',
             time: '00:00am' },
           { fromMe: false,
-            userID: 'Allen',
+            userName: 'Allen',
             text: 'Welcome to NTUEE ESLab HW1 Demo!! Testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt',
             time: '00:00am' }
         ]
@@ -31,15 +31,16 @@ const initialState = {
       },
       messages: [
         { fromMe: false,
-          userID: 'Miss Google',
+          userName: 'Miss Google',
           text: 'Welcome, dear User!, I\'m Miss Google.', time: '00:00am' },
         { fromMe: false,
-          userID: 'Miss Google',
+          userName: 'Miss Google',
           text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00am' },
       ]
     },
   ],
   userID: null,
+  userName: null,
   currentIndex: 0,
   onlineUsers: {},
   onlineUserNum: 0
@@ -72,14 +73,14 @@ export default class App extends Component {
     const addMessage = {fromMe: true, text: message, time: time}
 
     if (event.keyCode === 13 && message !== '') {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       threads[currentIndex].messages.push(addMessage)
 
       this.setState({
         newMessage: '',
         threads: threads
       })
-      socket.emit('onlineUsers', {userID: userID,
+      socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
                                   message: addMessage})
    }
   }
@@ -100,10 +101,10 @@ export default class App extends Component {
 
 	_publicMessageRecieve(data) {
     if (data.message !== undefined) {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
-                          userID: data.userID,
+                          userName: data.userName,
                           text: data.message.text,
                           time: data.message.time}
       threads[0].messages.push(addMessage)
@@ -115,7 +116,7 @@ export default class App extends Component {
     if (this.state.userID == null) {
       this.setState({userID: data.userID})
     }
-    const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
     onlineUsers[data.userID] = ""
     this.setState({onlineUsers: onlineUsers,
                    onlineUserNum: data.onlineUserNum})
@@ -124,7 +125,7 @@ export default class App extends Component {
 	_userLeft(data) {
     delete initialState.users[socket.id]
     if (data !== undefined) {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
                           userID: data,
@@ -148,12 +149,15 @@ export default class App extends Component {
 	}
 
   render () {
-    const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {threads, userID, userName, currentIndex,
+           onlineUsers, onlineUserNum} = this.state
     return (
       <div className='chat-app clarfix'>
         <Navbar
           onlineUserNum={onlineUserNum}
           handleUserNumChange={this.handleUserNumChange.bind(this)}
+          userID={userID}
+          userName={userName}
         />
 
         <div className='chat-app_left'>
