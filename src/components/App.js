@@ -20,41 +20,19 @@ const initialState = {
             time: '00:00am' },
           { fromMe: false,
             userID: 'Allen',
-            text: 'Welcome to NTUEE ESLab HW1 Demo!! TEttttttttttttttttttttttttttttttttttttttttttttaaaaaaaaaaaaaaaat',
+            text: 'Welcome to NTUEE ESLab HW1 Demo!! Testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt',
             time: '00:00am' }
         ]
     },
     {
       target: {
-        name: 'Marshall',
-        profilePic: 'http://lorempixel.com/50/50/people/7'
+        name: 'Miss Google',
+        profilePic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsx836kGDPfzvZ6B8NZhk7zP4dNFBdPnku0AbOR6xM4bicIJX1'
       },
       messages: [
-        { fromMe: false, text: '好呦～', time: '12:27am' }
+        { fromMe: false, text: 'Dear User, I\'m Miss Google. Leave a message and I\'ll translate it for you!', time: '00:00am' },
       ]
     },
-    {
-      target: {
-        name: 'Elsa',
-        profilePic: 'http://lorempixel.com/50/50/people/1'
-      },
-      messages: [
-        { fromMe: false, text: '蛤？', time: '12:27am' },
-        { fromMe: false, text: '來來來～', time: '12:27am' },
-        { fromMe: false, text: '靠左邊嗎？', time: '12:27am' },
-        { fromMe: true, text: '換我了！', time: '12:27am' },
-        { fromMe: true, text: '有看到嗎？', time: '12:27am' }
-      ]
-    },
-    {
-      target: {
-        name: 'Katharine',
-        profilePic: 'http://lorempixel.com/50/50/people/9'
-      },
-      messages: [
-        { fromMe: false, text: '對啊！', time: '12:27am' }
-      ]
-    }
   ],
   userID: null,
   currentIndex: 0,
