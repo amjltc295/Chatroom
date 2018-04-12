@@ -5,15 +5,16 @@ export default class MessageItem extends Component {
     fromMe: PropTypes.bool.isRequired,
     userName: PropTypes.string,
     text: PropTypes.string.isRequired,
+    icon: PropTypes.string
   }
 
   render() {
-    const { fromMe, userName, text} = this.props;
+    const { fromMe, userName, text, icon} = this.props;
     return (
       <div className={`message-item ${fromMe ? 'message-from-me' : 'message-from-other'}`}>
         {!fromMe &&
         <div className="message-icon">
-          icon
+          {icon ? <img className="message-icon" src={icon} /> : 'icon'}
         </div>
         }
         <div className="message-right">
