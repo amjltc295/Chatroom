@@ -30,7 +30,12 @@ const initialState = {
         profilePic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsx836kGDPfzvZ6B8NZhk7zP4dNFBdPnku0AbOR6xM4bicIJX1'
       },
       messages: [
-        { fromMe: false, text: 'Dear User, I\'m Miss Google. Leave a message and I\'ll translate it for you!', time: '00:00am' },
+        { fromMe: false,
+          userID: 'Miss Google',
+          text: 'Welcome, dear User!, I\'m Miss Google.', time: '00:00am' },
+        { fromMe: false,
+          userID: 'Miss Google',
+          text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00am' },
       ]
     },
   ],
