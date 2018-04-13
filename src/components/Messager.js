@@ -23,7 +23,7 @@ export default class Messager extends Component {
                 {name}
               </div>
               <div className="thread-content-box">
-                <span className="thread-content">{content}</span>
+                <p className="thread-content">{content}</p>
               </div>
               <span className="thread-time">{time}</span>
             </div>

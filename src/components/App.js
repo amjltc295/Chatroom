@@ -7,12 +7,10 @@ var socket = io.connect()
 
 const initialState = {
   newMessage: '',
-  threads: [
-    {
-      target: {
+  threads: {
+    'Public Room': {
         name: 'Public Room',
-        profilePic: 'https://scontent.ftpe7-4.fna.fbcdn.net/v/t1.0-9/22688095_1679926095374089_5126135710824419760_n.jpg?_nc_fx=ftpe7-2&_nc_eui2=v1%3AAeEUHpybF0Art51sdIiUHGVIGYu_8F7gpRVHTW-7L6SHCYnqdG1ClzVyzjW9NphQxPmR3P9DfGGIz2L8JIx7EsMWh-Vnfrun8k1m8tWY43kXig&oh=c85d05f8bf4016b267ab03d3a09b4a3e&oe=5B021CE9'
-      },
+        profilePic: 'https://scontent.ftpe7-4.fna.fbcdn.net/v/t1.0-9/22688095_1679926095374089_5126135710824419760_n.jpg?_nc_fx=ftpe7-2&_nc_eui2=v1%3AAeEUHpybF0Art51sdIiUHGVIGYu_8F7gpRVHTW-7L6SHCYnqdG1ClzVyzjW9NphQxPmR3P9DfGGIz2L8JIx7EsMWh-Vnfrun8k1m8tWY43kXig&oh=c85d05f8bf4016b267ab03d3a09b4a3e&oe=5B021CE9',
         messages: [
           { fromMe: false,
             userName: 'Manager - Allen',
@@ -24,11 +22,9 @@ const initialState = {
             time: '00:00am' }
         ]
     },
-    {
-      target: {
-        name: 'Miss Google',
-        profilePic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsx836kGDPfzvZ6B8NZhk7zP4dNFBdPnku0AbOR6xM4bicIJX1'
-      },
+    'Miss Google': {
+      name: 'Miss Google',
+      profilePic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsx836kGDPfzvZ6B8NZhk7zP4dNFBdPnku0AbOR6xM4bicIJX1',
       messages: [
         { fromMe: false,
           userName: 'Miss Google',
@@ -38,10 +34,10 @@ const initialState = {
           text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00am' },
       ]
     },
-  ],
+  },
   userID: null,
   userName: null,
-  currentIndex: 0,
+  currentTargetID: 'Public Room',
   onlineUsers: {},
   onlineUserNum: 0
 }
@@ -52,6 +48,7 @@ export default class App extends Component {
     this.state = initialState
 		this._publicMessageRecieve = this._publicMessageRecieve.bind(this)
 		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
+		this._privateMessageRecieve = this._privateMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
     this._initialize = this._initialize.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
@@ -66,42 +63,62 @@ export default class App extends Component {
   }
 
   handleMessagerChange (event) {
-    this.setState({ currentIndex: event })
+    socket.emit('debug', event)
+    this.setState({ currentTargetID: event })
+  }
+  handleMessagerAdd (event) {
+    socket.emit('debug', event)
+    if (!(event in this.state.threads)) {
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+      threads[event] = {name: event,
+                        profilePic: 'https://www.wur.nl/upload_mm/8/a/c/2538ed0c-1e9f-402a-bc2c-e73be10ff8fd_13191524_s_e8126203_490x330.jpg',
+                        messages: [
+                        { fromMe: false,
+                          userName: 'Manager - Allen',
+                          text: 'This is the very beginning of your conversation with ' + event,
+                          time: new Date().toTimeString()}]}
+      this.setState({threads: threads})
+    }
+
+    this.setState({ currentTargetID: event })
   }
 
   handleKeyDown (event) {
     const message = event.target.value
     const time = new Date().toTimeString()
-    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
     const addMessage = {fromMe: true,
                         userName: (userName ? userName : userID),
                         text: message, time: time}
 
     if (event.keyCode === 13 && message !== '') {
-      threads[currentIndex].messages.push(addMessage)
+      threads[currentTargetID].messages.push(addMessage)
 
       this.setState({
         newMessage: '',
         threads: threads
       })
-      if (currentIndex == 0) {
+      if (currentTargetID == 'Public Room') {
         socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
                                     message: addMessage})
       }
-      else if (currentIndex == 1) {
+      else if (currentTargetID == 'Miss Google') {
         socket.emit('google',
                     {userName: (!userName ? userID : userName),
                      message: addMessage})
       }
       else {
-        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
-                                    message: addMessage})
+        socket.emit('private_message',
+                    {userID: userID,
+                     userName: (!userName ? userID : userName),
+                     message: addMessage,
+                     target: currentTargetID})
       }
    }
   }
 
   componentDidUpdate(prevProp, prevState) {
-    const {newMessage, threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {newMessage, threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
     if (this.state.newMessage == '') {
       this.scrollToBottom()
     }
@@ -111,6 +128,7 @@ export default class App extends Component {
     this._initialize()
     socket.on('onlineUsers', this._publicMessageRecieve)
     socket.on('google', this._googleMessageRecieve)
+    socket.on('private_message', this._privateMessageRecieve)
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
@@ -123,70 +141,66 @@ export default class App extends Component {
 
 	_publicMessageRecieve(data) {
     if (data.message !== undefined) {
-      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
                           userName: data.message.userName,
                           text: data.message.text,
                           time: data.message.time}
-      threads[0].messages.push(addMessage)
+      threads['Public Room'].messages.push(addMessage)
       this.setState({threads: threads})
     }
 	}
 	_googleMessageRecieve(data) {
     if (data.message !== undefined) {
-      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
                           userName: data.message.userName,
                           text: data.message.text,
                           time: data.message.time}
-      threads[1].messages.push(addMessage)
+      threads['Miss Google'].messages.push(addMessage)
       this.setState({threads: threads})
     }
 	}
 
+	_privateMessageRecieve(data) {
+    if (data.message !== undefined) {
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+      if (!(data.userID in threads)) {
+        this.handleMessagerAdd(data.userID)
+      }
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userName: data.message.userName,
+                          text: data.message.text,
+                          time: data.message.time}
+      threads[data.userName].messages.push(addMessage)
+      this.setState({threads: threads})
+    }
+	}
 	_userJoined(data) {
     if (this.state.userID == null) {
       this.setState({userID: data.userID})
     }
-    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
-    onlineUsers[data.userID] = ""
+    const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+    onlineUsers[data.userID] = data.userName
     this.setState({onlineUsers: onlineUsers,
                    onlineUserNum: data.onlineUserNum})
 	}
 
 	_userLeft(data) {
     delete initialState.users[socket.id]
-    if (data !== undefined) {
-      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
-      const time = new Date().toTimeString()
-      const addMessage = {fromMe: false,
-                          userID: data,
-                          text: data + " left",
-                          time: time}
-      threads[0].messages.push(addMessage)
-      this.setState({threads: threads})
-    }
 	}
 
 	_userChangedName(data) {
-		var {oldName, newName} = data;
-		var {users, messages} = this.state;
-		var index = users.indexOf(oldName);
-		users.splice(index, 1, newName);
-		messages.push({
-			user: 'APPLICATION BOT',
-			text : 'Change Name : ' + oldName + ' ==> '+ newName
-		});
-		this.setState({users, messages});
 	}
 
   scrollToBottom() {
     this.el.scrollIntoView({ behavior: 'auto' });
   }
   render () {
-    const {threads, userID, userName, currentIndex,
+    const {threads, userID, userName, currentTargetID,
            onlineUsers, onlineUserNum} = this.state
     return (
       <div className='chat-app clarfix'>
@@ -202,17 +216,18 @@ export default class App extends Component {
             <h3 className='messenger-title'>Messagers</h3>
           </div>
           <div className='thread-list'>
-            {threads.map((thread, id) => {
-              const { target, messages } = thread
+            {Object.keys(threads).map((id_, index) => {
+              const thread = threads[id_]
+              const { name, profilePic, messages } = thread
               const lastMessage = messages[messages.length - 1]
               return (
                 <Messager
-                  key={id}
-                  src={target.profilePic}
-                  name={target.name}
+                  key={id_}
+                  src={profilePic}
+                  name={name}
                   content={lastMessage.text}
                   time={lastMessage.time}
-                  handleMessagerChange={this.handleMessagerChange.bind(this, id)}
+                  handleMessagerChange={this.handleMessagerChange.bind(this, id_)}
                 />
               )
             })}
@@ -220,10 +235,13 @@ export default class App extends Component {
         </div>
         <div className='chat-app_right'>
           <div className='heading'>
-            <div className='current-target'>{threads[currentIndex].target.name}</div>
+            <div className='current-target'>{threads[currentTargetID].name}</div>
           </div>
           <div className='message-list'>
-            <MessageList threads={threads} index={currentIndex} />
+            <MessageList
+              threads={threads}
+              id_={currentTargetID}
+              handleMessagerAdd={this.handleMessagerAdd.bind(this)}/>
             <div ref={el => { this.el = el; }} />
           </div>
           <div className='footer'>
