@@ -3,24 +3,24 @@ import React, { Component, PropTypes } from 'react';
 export default class MessageItem extends Component {
   static propTypes = {
     fromMe: PropTypes.bool.isRequired,
-    userID: PropTypes.string,
+    userName: PropTypes.string,
     text: PropTypes.string.isRequired,
-    userName: PropTypes.string
+    icon: PropTypes.string
   }
 
   render() {
-    const { fromMe, userID, text} = this.props;
+    const { fromMe, userName, text, icon} = this.props;
     return (
       <div className={`message-item ${fromMe ? 'message-from-me' : 'message-from-other'}`}>
         {!fromMe &&
         <div className="message-icon">
-          icon
+          {icon ? <img className="message-icon" src={icon} /> : 'icon'}
         </div>
         }
         <div className="message-right">
           {!fromMe &&
           <div className="message-name">
-            {userID}
+            {userName}
           </div>
           }
           <span>{text}</span>

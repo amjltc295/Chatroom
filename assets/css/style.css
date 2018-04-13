@@ -10,23 +10,32 @@ body {
     display: flex;
     height: 6%;
     line-height: 40px;
+    justify-content: space-between;
+    flex-direction: row;
 }
 
 
 .nav-padding {
-    width: 100%;
+    width: 65%;
     height: inherit;
+    display: flex;
+    flex-direction: row;
 }
 .nav-title {
     color: #ffffff;
-    width: 20%;
-    height: inherit;
+    height: 100%;
     margin: 0;
 }
 
-.nav-users {
-    width: 20%;
+.nav-user {
+    height: 100%;
+    padding-right: 20px;
     text-align: right;
+    width: 40;
+}
+
+.nav-usernum {
+    width: 170px;
     padding-right: 15px;
 }
 
@@ -135,6 +144,8 @@ body {
 	padding-top: 10px;
 	height: calc(80% + 3px);
 	overflow-y: scroll;
+    position : relative; 
+    bottom:0;
 }
 
 ::-webkit-scrollbar {

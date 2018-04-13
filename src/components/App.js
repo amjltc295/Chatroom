@@ -15,48 +15,32 @@ const initialState = {
       },
         messages: [
           { fromMe: false,
-            userID: 'Allen',
-            text: 'Hello, I am Ya-Liang Chang.',
+            userName: 'Manager - Allen',
+            text: 'Hello, I am Ya-Liang Chang (Allen).',
             time: '00:00am' },
           { fromMe: false,
-            userID: 'Allen',
-            text: 'Welcome to NTUEE ESLab HW1 Demo!! TEttttttttttttttttttttttttttttttttttttttttttttaaaaaaaaaaaaaaaat',
+            userName: 'Manager - Allen',
+            text: 'Welcome to NTUEE ESLab HW1 Demo!! Testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt',
             time: '00:00am' }
         ]
     },
     {
       target: {
-        name: 'Marshall',
-        profilePic: 'http://lorempixel.com/50/50/people/7'
+        name: 'Miss Google',
+        profilePic: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsx836kGDPfzvZ6B8NZhk7zP4dNFBdPnku0AbOR6xM4bicIJX1'
       },
       messages: [
-        { fromMe: false, text: '好呦～', time: '12:27am' }
+        { fromMe: false,
+          userName: 'Miss Google',
+          text: 'Welcome, dear User!, I\'m Miss Google.', time: '00:00am' },
+        { fromMe: false,
+          userName: 'Miss Google',
+          text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00am' },
       ]
     },
-    {
-      target: {
-        name: 'Elsa',
-        profilePic: 'http://lorempixel.com/50/50/people/1'
-      },
-      messages: [
-        { fromMe: false, text: '蛤？', time: '12:27am' },
-        { fromMe: false, text: '來來來～', time: '12:27am' },
-        { fromMe: false, text: '靠左邊嗎？', time: '12:27am' },
-        { fromMe: true, text: '換我了！', time: '12:27am' },
-        { fromMe: true, text: '有看到嗎？', time: '12:27am' }
-      ]
-    },
-    {
-      target: {
-        name: 'Katharine',
-        profilePic: 'http://lorempixel.com/50/50/people/9'
-      },
-      messages: [
-        { fromMe: false, text: '對啊！', time: '12:27am' }
-      ]
-    }
   ],
   userID: null,
+  userName: null,
   currentIndex: 0,
   onlineUsers: {},
   onlineUserNum: 0
@@ -67,8 +51,10 @@ export default class App extends Component {
     super(props)
     this.state = initialState
 		this._publicMessageRecieve = this._publicMessageRecieve.bind(this)
+		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
     this._initialize = this._initialize.bind(this)
+    this.scrollToBottom = this.scrollToBottom.bind(this)
   }
 
   handleUserNumChange () {
@@ -86,25 +72,45 @@ export default class App extends Component {
   handleKeyDown (event) {
     const message = event.target.value
     const time = new Date().toTimeString()
-    const addMessage = {fromMe: true, text: message, time: time}
+    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const addMessage = {fromMe: true,
+                        userName: (userName ? userName : userID),
+                        text: message, time: time}
 
     if (event.keyCode === 13 && message !== '') {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
       threads[currentIndex].messages.push(addMessage)
 
       this.setState({
         newMessage: '',
         threads: threads
       })
-      socket.emit('onlineUsers', {userID: userID,
-                                  message: addMessage})
+      if (currentIndex == 0) {
+        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
+                                    message: addMessage})
+      }
+      else if (currentIndex == 1) {
+        socket.emit('google',
+                    {userName: (!userName ? userID : userName),
+                     message: addMessage})
+      }
+      else {
+        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
+                                    message: addMessage})
+      }
    }
+  }
+
+  componentDidUpdate(prevProp, prevState) {
+    const {newMessage, threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    if (this.state.newMessage == '') {
+      this.scrollToBottom()
+    }
   }
 
   componentDidMount () {
     this._initialize()
     socket.on('onlineUsers', this._publicMessageRecieve)
-		socket.on('send:message', this._publicMessageRecieve);
+    socket.on('google', this._googleMessageRecieve)
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
@@ -117,13 +123,25 @@ export default class App extends Component {
 
 	_publicMessageRecieve(data) {
     if (data.message !== undefined) {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
-                          userID: data.userID,
+                          userName: data.message.userName,
                           text: data.message.text,
                           time: data.message.time}
       threads[0].messages.push(addMessage)
+      this.setState({threads: threads})
+    }
+	}
+	_googleMessageRecieve(data) {
+    if (data.message !== undefined) {
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userName: data.message.userName,
+                          text: data.message.text,
+                          time: data.message.time}
+      threads[1].messages.push(addMessage)
       this.setState({threads: threads})
     }
 	}
@@ -132,7 +150,7 @@ export default class App extends Component {
     if (this.state.userID == null) {
       this.setState({userID: data.userID})
     }
-    const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
     onlineUsers[data.userID] = ""
     this.setState({onlineUsers: onlineUsers,
                    onlineUserNum: data.onlineUserNum})
@@ -141,7 +159,7 @@ export default class App extends Component {
 	_userLeft(data) {
     delete initialState.users[socket.id]
     if (data !== undefined) {
-      const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       const time = new Date().toTimeString()
       const addMessage = {fromMe: false,
                           userID: data,
@@ -164,13 +182,19 @@ export default class App extends Component {
 		this.setState({users, messages});
 	}
 
+  scrollToBottom() {
+    this.el.scrollIntoView({ behavior: 'auto' });
+  }
   render () {
-    const {threads, userID, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const {threads, userID, userName, currentIndex,
+           onlineUsers, onlineUserNum} = this.state
     return (
       <div className='chat-app clarfix'>
         <Navbar
           onlineUserNum={onlineUserNum}
           handleUserNumChange={this.handleUserNumChange.bind(this)}
+          userID={userID}
+          userName={userName}
         />
 
         <div className='chat-app_left'>
@@ -200,6 +224,7 @@ export default class App extends Component {
           </div>
           <div className='message-list'>
             <MessageList threads={threads} index={currentIndex} />
+            <div ref={el => { this.el = el; }} />
           </div>
           <div className='footer'>
             <UserInput newMessage={this.state.newMessage}
