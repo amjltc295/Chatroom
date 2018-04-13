@@ -35,10 +35,11 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
 
   socket.on('user:init', function (data) {
-    initialState.users[socket.id] = socket
+    initialState.users[socket.id] = socket.id.slice(0, 5)
     initialState.onlineUserNum = Object.keys(initialState.users).length
     io.emit('user:join',
             {userID: socket.id,
+             userName: socket.id.slice(0, 5),
              onlineUserNum: initialState.onlineUserNum})
     console.log(socket.id + ' connected')
     const message = {fromMe: false,
@@ -69,6 +70,10 @@ io.on('connection', function (socket) {
   })
   socket.on('onlineUsers', function (data) {
     socket.broadcast.emit('onlineUsers', data)
+    console.log(data)
+  })
+  socket.on('private_message', function (data) {
+    socket.broadcast.to(data.target).emit('private_message', data)
     console.log(data)
   })
 

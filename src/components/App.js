@@ -48,6 +48,7 @@ export default class App extends Component {
     this.state = initialState
 		this._publicMessageRecieve = this._publicMessageRecieve.bind(this)
 		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
+		this._privateMessageRecieve = this._privateMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
     this._initialize = this._initialize.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
@@ -62,6 +63,23 @@ export default class App extends Component {
   }
 
   handleMessagerChange (event) {
+    socket.emit('debug', event)
+    this.setState({ currentTargetID: event })
+  }
+  handleMessagerAdd (event) {
+    socket.emit('debug', event)
+    if (!(event in this.state.threads)) {
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+      threads[event] = {name: event,
+                        profilePic: 'https://www.wur.nl/upload_mm/8/a/c/2538ed0c-1e9f-402a-bc2c-e73be10ff8fd_13191524_s_e8126203_490x330.jpg',
+                        messages: [
+                        { fromMe: false,
+                          userName: 'Manager - Allen',
+                          text: 'This is the very beginning of your conversation with ' + event,
+                          time: new Date().toTimeString()}]}
+      this.setState({threads: threads})
+    }
+
     this.setState({ currentTargetID: event })
   }
 
@@ -90,8 +108,11 @@ export default class App extends Component {
                      message: addMessage})
       }
       else {
-        socket.emit('onlineUsers', {userName: (!userName ? userID : userName),
-                                    message: addMessage})
+        socket.emit('private_message',
+                    {userID: userID,
+                     userName: (!userName ? userID : userName),
+                     message: addMessage,
+                     target: currentTargetID})
       }
    }
   }
@@ -107,6 +128,7 @@ export default class App extends Component {
     this._initialize()
     socket.on('onlineUsers', this._publicMessageRecieve)
     socket.on('google', this._googleMessageRecieve)
+    socket.on('private_message', this._privateMessageRecieve)
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
@@ -142,12 +164,27 @@ export default class App extends Component {
     }
 	}
 
+	_privateMessageRecieve(data) {
+    if (data.message !== undefined) {
+      const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+      if (!(data.userID in threads)) {
+        this.handleMessagerAdd(data.userID)
+      }
+      const time = new Date().toTimeString()
+      const addMessage = {fromMe: false,
+                          userName: data.message.userName,
+                          text: data.message.text,
+                          time: data.message.time}
+      threads[data.userName].messages.push(addMessage)
+      this.setState({threads: threads})
+    }
+	}
 	_userJoined(data) {
     if (this.state.userID == null) {
       this.setState({userID: data.userID})
     }
     const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
-    onlineUsers[data.userID] = ""
+    onlineUsers[data.userID] = data.userName
     this.setState({onlineUsers: onlineUsers,
                    onlineUserNum: data.onlineUserNum})
 	}
@@ -157,15 +194,6 @@ export default class App extends Component {
 	}
 
 	_userChangedName(data) {
-		var {oldName, newName} = data;
-		var {users, messages} = this.state;
-		var index = users.indexOf(oldName);
-		users.splice(index, 1, newName);
-		messages.push({
-			user: 'APPLICATION BOT',
-			text : 'Change Name : ' + oldName + ' ==> '+ newName
-		});
-		this.setState({users, messages});
 	}
 
   scrollToBottom() {
@@ -210,7 +238,10 @@ export default class App extends Component {
             <div className='current-target'>{threads[currentTargetID].name}</div>
           </div>
           <div className='message-list'>
-            <MessageList threads={threads} id_={currentTargetID} />
+            <MessageList
+              threads={threads}
+              id_={currentTargetID}
+              handleMessagerAdd={this.handleMessagerAdd.bind(this)}/>
             <div ref={el => { this.el = el; }} />
           </div>
           <div className='footer'>
