@@ -15,11 +15,11 @@ const initialState = {
       },
         messages: [
           { fromMe: false,
-            userName: 'Allen',
-            text: 'Hello, I am Ya-Liang Chang.',
+            userName: 'Manager - Allen',
+            text: 'Hello, I am Ya-Liang Chang (Allen).',
             time: '00:00am' },
           { fromMe: false,
-            userName: 'Allen',
+            userName: 'Manager - Allen',
             text: 'Welcome to NTUEE ESLab HW1 Demo!! Testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt',
             time: '00:00am' }
         ]
@@ -54,6 +54,7 @@ export default class App extends Component {
 		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
     this._initialize = this._initialize.bind(this)
+    this.scrollToBottom = this.scrollToBottom.bind(this)
   }
 
   handleUserNumChange () {
@@ -71,10 +72,12 @@ export default class App extends Component {
   handleKeyDown (event) {
     const message = event.target.value
     const time = new Date().toTimeString()
-    const addMessage = {fromMe: true, text: message, time: time}
+    const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    const addMessage = {fromMe: true,
+                        userName: (userName ? userName : userID),
+                        text: message, time: time}
 
     if (event.keyCode === 13 && message !== '') {
-      const {threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
       threads[currentIndex].messages.push(addMessage)
 
       this.setState({
@@ -97,6 +100,13 @@ export default class App extends Component {
    }
   }
 
+  componentDidUpdate(prevProp, prevState) {
+    const {newMessage, threads, userID, userName, currentIndex, onlineUsers, onlineUserNum} = this.state
+    if (this.state.newMessage == '') {
+      this.scrollToBottom()
+    }
+  }
+
   componentDidMount () {
     this._initialize()
     socket.on('onlineUsers', this._publicMessageRecieve)
@@ -104,7 +114,6 @@ export default class App extends Component {
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
-    this.scrollToBottom();
 	}
 
 	_initialize() {
@@ -122,7 +131,6 @@ export default class App extends Component {
                           time: data.message.time}
       threads[0].messages.push(addMessage)
       this.setState({threads: threads})
-      this.scrollToBottom();
     }
 	}
 	_googleMessageRecieve(data) {
@@ -135,7 +143,6 @@ export default class App extends Component {
                           time: data.message.time}
       threads[1].messages.push(addMessage)
       this.setState({threads: threads})
-      this.scrollToBottom();
     }
 	}
 
