@@ -12,11 +12,11 @@ npm install
 npm start
 ```
 
-Go to localhost:5000/messenger should see the Reult.
+Go to localhost:5000/messenger and you should see the page as the image above.
 
 In Public Room, you could talk to other users. By clicking their icon, you could have private conversation with them.
 
-Miss Google would translate for you.
+Talk to Miss Google and she would translate the message for you.
 
 ## Disclaimer
 
