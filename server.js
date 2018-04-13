@@ -42,14 +42,19 @@ io.on('connection', function (socket) {
              onlineUserNum: initialState.onlineUserNum})
     console.log(socket.id + ' connected')
     const message = {fromMe: false,
-                     userName: 'Public',
+                     userName: 'Manager - Allen',
                      text: socket.id + ' joined this room',
                      time: new Date().toTimeString()}
     io.emit('onlineUsers', {message: message})
     console.log(initialState)
   })
   socket.on('google', function (data) {
-		translate(data.message.text, {to: 'en'}).then(res => {
+    const languages = ['en', 'zh-tw', 'ja', 'ko', 'ru', 'es', 'fr']
+    const min = 0
+    const max = languages.length - 1
+    const language = languages[Math.floor(Math.random() * languages.length)]
+    console.log(language)
+		translate(data.message.text, {to: language}).then(res => {
       const translated_message = {fromMe: false,
                                   userName: 'Miss Google',
                                   text: res.text,
@@ -59,6 +64,9 @@ io.on('connection', function (socket) {
       socket.emit('google', err)
     });
   })
+  socket.on('debug', function (data) {
+    console.log(data)
+  })
   socket.on('onlineUsers', function (data) {
     socket.broadcast.emit('onlineUsers', data)
     console.log(data)
@@ -67,6 +75,11 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     socket.emit('user:left', socket.id)
     delete initialState.users[socket.id]
+    const message = {fromMe: false,
+                     userName: 'Manager - Allen',
+                     text: socket.id + ' left this room',
+                     time: new Date().toTimeString()}
+    io.emit('onlineUsers', {message: message})
     console.log(socket.id + ' disconnected')
   })
 })
