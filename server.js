@@ -11,6 +11,16 @@ var io = require('socket.io')(http)
 var complier = webpack(config)
 
 var initialState = {
+  publicMessages: [
+          { fromMe: false,
+            userName: 'Manager - Allen',
+            text: 'Hello, I am Ya-Liang Chang (Allen).',
+            time: '00:00:00' },
+          { fromMe: false,
+            userName: 'Manager - Allen',
+            text: 'Welcome to NTUEE ESLab HW1 Demo!! Test',
+            time: '00:00:00' }
+  ],
   users: {},
   onlineUserNum: 0
 }
@@ -37,6 +47,7 @@ io.on('connection', function (socket) {
   socket.on('user:init', function (data) {
     initialState.users[socket.id] = socket.id.slice(0, 5)
     initialState.onlineUserNum = Object.keys(initialState.users).length
+    socket.emit('user:init', initialState.publicMessages)
     io.emit('user:join',
             {userID: socket.id,
              userName: socket.id.slice(0, 5),
@@ -45,8 +56,9 @@ io.on('connection', function (socket) {
     const message = {fromMe: false,
                      userName: 'Manager - Allen',
                      text: socket.id + ' joined this room',
-                     time: new Date().toTimeString()}
+                     time: new Date().toTimeString().slice(0, 8)}
     io.emit('onlineUsers', {message: message})
+    initialState.publicMessages.push(message)
     console.log(initialState)
   })
   socket.on('google', function (data) {
@@ -69,6 +81,9 @@ io.on('connection', function (socket) {
     console.log(data)
   })
   socket.on('onlineUsers', function (data) {
+    var msg = data.message
+    msg.fromMe = false
+    initialState.publicMessages.push(msg)
     socket.broadcast.emit('onlineUsers', data)
     console.log(data)
   })
@@ -84,8 +99,9 @@ io.on('connection', function (socket) {
       const message = {fromMe: false,
                        userName: 'Manager - Allen',
                        text: socket.id + ' left this room',
-                       time: new Date().toTimeString()}
+                       time: new Date().toTimeString().slice(0, 8)}
       io.emit('onlineUsers', {message: message})
+      initialState.publicMessages.push(message)
       console.log(socket.id + ' disconnected')
     }
   })
