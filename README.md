@@ -3,6 +3,8 @@
 ![example](images/example.png)
 ![example2](images/example2.png)
 
+Live demo is deployed on [Heroku](https://b03901014eslabhw1.herokuapp.com/messenger)
+
 ## How to run?
 
 ``` 
