@@ -3,14 +3,14 @@ import MessageItem from './MessageItem';
 
 export default class MessageList extends Component {
   static propTypes = {
-    threads: PropTypes.array.isRequired,
-    index: PropTypes.number.isRequired
+    threads: PropTypes.object.isRequired,
+    id_: PropTypes.string.isRequired
   }
 
   render() {
-    const { threads, index } = this.props;
-    const messages = threads[index].messages;
-    const target = threads[index].target;
+    const { threads, id_ } = this.props;
+    const messages = threads[id_].messages;
+    const target = threads[id_];
     return (
       <div>
         {messages.map((message, id) => {

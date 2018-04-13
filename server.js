@@ -74,13 +74,15 @@ io.on('connection', function (socket) {
 
   socket.on('disconnect', function () {
     socket.emit('user:left', socket.id)
-    delete initialState.users[socket.id]
-    const message = {fromMe: false,
-                     userName: 'Manager - Allen',
-                     text: socket.id + ' left this room',
-                     time: new Date().toTimeString()}
-    io.emit('onlineUsers', {message: message})
-    console.log(socket.id + ' disconnected')
+    if (socket.id in initialState.users) {
+      delete initialState.users[socket.id]
+      const message = {fromMe: false,
+                       userName: 'Manager - Allen',
+                       text: socket.id + ' left this room',
+                       time: new Date().toTimeString()}
+      io.emit('onlineUsers', {message: message})
+      console.log(socket.id + ' disconnected')
+    }
   })
 })
 
