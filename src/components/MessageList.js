@@ -20,6 +20,7 @@ export default class MessageList extends Component {
                          userName={message.userName}
                          fromMe={message.fromMe}
                          text={message.text}
+                         time={message.time}
                          icon={target.profilePic}
                          handleMessagerAdd={handleMessagerAdd}/>
 

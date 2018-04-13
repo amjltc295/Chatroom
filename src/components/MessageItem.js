@@ -5,6 +5,7 @@ export default class MessageItem extends Component {
     fromMe: PropTypes.bool.isRequired,
     userName: PropTypes.string,
     text: PropTypes.string.isRequired,
+    time: PropTypes.string.isRequired,
     icon: PropTypes.string,
     handleMessagerAdd: PropTypes.func.isRequired,
   }
@@ -18,7 +19,7 @@ export default class MessageItem extends Component {
 
   render() {
     this.handleMessagerClick.bind(this, this.props.userName)
-    const { fromMe, userName, text, icon, handleMessagerAdd} = this.props;
+    const { fromMe, userName, text, time, icon, handleMessagerAdd} = this.props;
     return (
       <div className={`message-item ${fromMe ? 'message-from-me' : 'message-from-other'}`} onClick={this.handleMessagerClick}>
         {!fromMe &&
@@ -32,7 +33,14 @@ export default class MessageItem extends Component {
             {userName}
           </div>
           }
-          <span>{text}</span>
+          <div className="message-wrapper">
+            <span>{text}</span>
+            {!fromMe &&
+            <div className="message-time">
+              {time}
+            </div>
+            }
+          </div>
         </div>
       </div>
     );

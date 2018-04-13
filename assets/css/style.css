@@ -159,7 +159,13 @@ body {
 }
 
 .message-right {
+    display: flex;
+    flex-flow: column nowrap;
+}
 
+.message-wrapper {
+    display: flex;
+    flex-flow: row nowrap;
 }
 
 .message-icon {
@@ -177,6 +183,15 @@ body {
     height: 35px;
 	text-align: left;
     margin: 5px 0 0 8px;
+}
+
+.message-time {
+	color: rgba(0, 0, 0, .40);
+	font-size: 8px;
+	text-align: bottom;
+    bottom: 0;
+    margin: 5px 0 0 8px;
+    align-self: flex-end;
 }
 
 .footer {
@@ -214,6 +229,7 @@ body {
 }
 
 .message-from-me span {
+    margin-left: auto;
 	display: inline-block;
 	border-top-left-radius: 1.3em;
 	border-top-right-radius: 1.3em;

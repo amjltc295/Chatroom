@@ -15,11 +15,11 @@ const initialState = {
           { fromMe: false,
             userName: 'Manager - Allen',
             text: 'Hello, I am Ya-Liang Chang (Allen).',
-            time: '00:00am' },
+            time: '00:00:00' },
           { fromMe: false,
             userName: 'Manager - Allen',
             text: 'Welcome to NTUEE ESLab HW1 Demo!! Testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt',
-            time: '00:00am' }
+            time: '00:00:00' }
         ]
     },
     'Miss Google': {
@@ -28,10 +28,10 @@ const initialState = {
       messages: [
         { fromMe: false,
           userName: 'Miss Google',
-          text: 'Welcome, dear User!, I\'m Miss Google.', time: '00:00am' },
+          text: 'Welcome, dear User!, I\'m Miss Google.', time: '00:00:00' },
         { fromMe: false,
           userName: 'Miss Google',
-          text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00am' },
+          text: 'Leave a message and I\'ll translate it for you in a random language!', time: '00:00:00' },
       ]
     },
   },
@@ -50,6 +50,7 @@ export default class App extends Component {
 		this._googleMessageRecieve = this._googleMessageRecieve.bind(this)
 		this._privateMessageRecieve = this._privateMessageRecieve.bind(this)
 		this._userJoined = this._userJoined.bind(this)
+    this._userInit = this._userInit.bind(this)
     this._initialize = this._initialize.bind(this)
     this.scrollToBottom = this.scrollToBottom.bind(this)
   }
@@ -76,7 +77,7 @@ export default class App extends Component {
                         { fromMe: false,
                           userName: 'Manager - Allen',
                           text: 'This is the very beginning of your conversation with ' + event,
-                          time: new Date().toTimeString()}]}
+                          time: new Date().toTimeString().slice(0, 8)}]}
       this.setState({threads: threads})
     }
 
@@ -85,7 +86,7 @@ export default class App extends Component {
 
   handleKeyDown (event) {
     const message = event.target.value
-    const time = new Date().toTimeString()
+    const time = new Date().toTimeString().slice(0, 8)
     const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
     const addMessage = {fromMe: true,
                         userName: (userName ? userName : userID),
@@ -129,6 +130,7 @@ export default class App extends Component {
     socket.on('onlineUsers', this._publicMessageRecieve)
     socket.on('google', this._googleMessageRecieve)
     socket.on('private_message', this._privateMessageRecieve)
+		socket.on('user:init', this._userInit);
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
@@ -142,7 +144,7 @@ export default class App extends Component {
 	_publicMessageRecieve(data) {
     if (data.message !== undefined) {
       const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
-      const time = new Date().toTimeString()
+      const time = new Date().toTimeString().slice(0, 8)
       const addMessage = {fromMe: false,
                           userName: data.message.userName,
                           text: data.message.text,
@@ -179,6 +181,11 @@ export default class App extends Component {
       this.setState({threads: threads})
     }
 	}
+	_userInit(data) {
+    const {threads, userID, userName, currentTargetID, onlineUsers, onlineUserNum} = this.state
+    threads['Public Room'].messages = data
+    this.setState({threads: threads})
+  }
 	_userJoined(data) {
     if (this.state.userID == null) {
       this.setState({userID: data.userID})
